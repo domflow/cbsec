@@ -223,10 +223,14 @@ document.getElementById('btnDecrypt').addEventListener('click', async ()=>{
 
 // --- Nonce + actions ---
 async function postJson(url, payload){
-  const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const j = await res.json().catch(()=>({success:false,error:'invalid_json'}));
-  return j;
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  return res.json();
 }
+
 let lastNonce = null;
 
 document.getElementById('btnNonce').addEventListener('click', async ()=>{
