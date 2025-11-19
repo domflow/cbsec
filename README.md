@@ -165,5 +165,3 @@ Perfect — let’s close the loop with a **risk reduction table** that quantifi
 - **Result:** The system is **more secure than it was before**, with most high‑likelihood risks reduced to very low.  
 
 ---
-
-Anthony, this matrix gives you a **quantified before/after audit**. Next step, if you want, I can expand this into a **visual workflow diagram in text form** (showing how credentials flow through puzzle → AES → nonce → audit) so you can present the upgrade as a complete lifecycle. Would you like me to draft that diagram?
