@@ -57,6 +57,7 @@
     Checksum (prefix): <span id="diagChecksum">—</span>
   </div>
 </div>
+<button id="btnDemo" class="btn">Run Demo Action</button>
 
 <script>
 // --- Constants ---
@@ -251,20 +252,51 @@ document.getElementById('btnActivate').addEventListener('click', async ()=>{
   } catch(e){ setStatus('Error: ' + (e.message||e), 'err'); }
 });
 
-document.getElementById('btnMigrate').addEventListener('click', async ()=>{
+document.getElementById('btnDemo').addEventListener('click', async () => {
   try {
-    if (!lastNonce) return setStatus('Request a nonce first.', 'err');
+    if (!lastNonce) {
+      setStatus('Request a nonce first.', 'err');
+      return;
+    }
+
+    // Decrypt credentials to get email
     const sel = selectedIndexesFromUI(puzzle.n_bits);
     const meta = await decryptCredentials(sel);
-    // Request OTP
-    const req = await postJson('request_recovery.php', { email: meta.email });
-    if (!req.success) return setStatus('OTP request failed: '+(req.error||'unknown'), 'err');
-    const otp = prompt('Enter 6-digit OTP sent to your email:');
-    if (!otp) return setStatus('OTP required.', 'err');
-    const j = await postJson('migrate_auctions.php', { email: meta.email, checksum: meta.checksum, otp, nonce: lastNonce });
-    setStatus(j.success ? ('Migrated '+(j.migrated??0)+' auctions.') : 'Migrate failed: '+(j.error||'unknown'), j.success?'ok':'err');
-  } catch(e){ setStatus('Error: ' + (e.message||e), 'err'); }
+
+    // Request OTP (demo: server expects "123456")
+    setStatus('Requesting OTP…', 'muted');
+    const otpReq = await postJson('request_recovery.php', { email: meta.email });
+    if (!otpReq.success) {
+      setStatus('OTP request failed: ' + (otpReq.error || 'unknown'), 'err');
+      return;
+    }
+
+    const otp = prompt('Enter the 6-digit OTP (demo accepts 123456):');
+    if (!otp) {
+      setStatus('OTP required.', 'err');
+      return;
+    }
+
+    // Call demo endpoint
+    setStatus('Performing demo action…', 'muted');
+    const res = await postJson('demo_action.php', {
+      email: meta.email,
+      otp,
+      nonce: lastNonce
+    });
+
+    if (res.success) {
+      setStatus(res.message || 'Demo action succeeded.', 'ok');
+    } else {
+      setStatus('Demo action failed: ' + (res.error || 'unknown'), 'err');
+    }
+
+  } catch (e) {
+    setStatus('Unexpected error: ' + (e.message || e), 'err');
+  }
 });
+
+
 </script>
 </body>
 </html>
